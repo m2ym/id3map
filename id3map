@@ -1,0 +1,42 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use MP3::Tag;
+use IPC::Open2;
+
+sub apply {
+    my ($command, $data) = @_;
+    open2(my $r, my $w, $command);
+    print $w $data;
+    close $w;
+
+    local $/;
+    $data = <$r>;
+    close $r;
+    $data;
+}
+
+sub id3map {
+    my ($command, $file) = @_;
+    my $tag = MP3::Tag->new($file);
+    if (!$tag) {
+        print STDERR "$file: $!\n";
+        next;
+    } elsif ($tag->get_tags, !exists $tag->{ID3v2}) {
+        print STDERR "$file: No ID3v2 tags\n";
+        next;
+    }
+
+    for my $id qw(TIT2 TCON TALB TPE1 TPE2 TPUB) {
+        my $data = $tag->{ID3v2}->get_frame($id) or next;
+        $data = apply($command, $data) or next;
+        $tag->{ID3v2}->change_frame($id, $data);
+    }
+    $tag->{ID3v2}->write_tag;
+}
+
+my ($command, @files) = @ARGV;
+for my $file (@files) {
+    id3map($command, $file);
+}
