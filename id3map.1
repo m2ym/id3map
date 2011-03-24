@@ -1,0 +1,28 @@
+.TH ID3MAP 1 "MARCH 2011"
+
+.SH NAME
+id3map - ID3v2 tags converter
+
+.SH SYNOPSIS
+.B id3map
+.RB COMMAND
+.RB [FILE]...
+
+.SH DESCRIPTION
+Convert ID3v2 tags of FILEs with COMMAND.
+
+.SH EXAMPLES
+Show all tags:
+.PP
+.RS
+id3map echo *.mp3
+.RE
+
+Convert encoding of tags from UTF-8 to Shift-JIS:
+.PP
+.RS
+id3map 'nkf -Ws' *.mp3
+.RE
+
+.SH AUTHOR
+Tomohiro Matsuyama
